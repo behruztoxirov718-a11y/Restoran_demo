@@ -1076,7 +1076,7 @@ function toggleTheme() {
 })();
 
 // ══════════════════════════════════════════
-//  CART
+//  CART (SAVATCHA TIZIMI - BUTUNLAY TUZATILDI)
 // ══════════════════════════════════════════
 let cart = [];
 let cartCount = 0;
@@ -1087,19 +1087,41 @@ function addToCart(btn) {
   const name = card.getAttribute('data-name-' + lang) || card.getAttribute('data-name-uz');
   const price = parseInt(card.dataset.price);
   const img = card.dataset.img || card.querySelector('.card-img').src;
+  
+  // Mahsulot savatda bor-yo'qligini tekshirish
   const existing = cart.find(i => i.nameUz === card.getAttribute('data-name-uz'));
-  if (existing) { existing.qty++; }
-  else { cart.push({ nameUz: card.getAttribute('data-name-uz'), nameRu: card.getAttribute('data-name-ru'), nameEn: card.getAttribute('data-name-en'), price, img, qty: 1 }); }
+  
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({
+      nameUz: card.getAttribute('data-name-uz'),
+      nameRu: card.getAttribute('data-name-ru'),
+      nameEn: card.getAttribute('data-name-en'),
+      price,
+      img,
+      qty: 1
+    });
+  }
+  
   cartCount++;
-  document.getElementById('cartCountBadge').textContent = cartCount;
-  document.getElementById('cart-float').classList.add('show');
+  
+  // Elementlar mavjudligini xavfsiz tekshirish
+  const badge = document.getElementById('cartCountBadge') || document.querySelector('.cart-count');
+  if (badge) badge.textContent = cartCount;
+  
+  const floatBtn = document.getElementById('cart-float');
+  if (floatBtn) floatBtn.classList.add('show');
+  
   const addSpan = btn.querySelector('[data-i18n="add_btn"]');
   if (addSpan) addSpan.textContent = '✓';
   btn.classList.add('added');
+  
   setTimeout(() => {
-    if (addSpan) addSpan.textContent = T[currentLang]['add_btn'];
+    if (addSpan) addSpan.textContent = T[currentLang]['add_btn'] || 'Qo\'shish';
     btn.classList.remove('added');
   }, 1500);
+  
   renderCart();
 }
 
@@ -1110,42 +1132,102 @@ function getItemName(item) {
 }
 
 function renderCart() {
-  const container = document.getElementById('cartItems');
-  const empty = document.getElementById('cartEmpty');
-  const footer = document.getElementById('cartFooter');
-  const t = T[currentLang];
-  document.querySelector('[data-i18n="cart_empty"]').textContent = t.cart_empty;
-  document.querySelector('[data-i18n="cart_title"]').textContent = t.cart_title;
-  document.querySelector('[data-i18n="cart_total"]').textContent = t.cart_total;
-  document.querySelector('[data-i18n="checkout_btn"]').textContent = t.checkout_btn;
-  if (cart.length === 0) { empty.style.display='block'; footer.style.display='none'; return; }
-  empty.style.display = 'none'; footer.style.display = 'block';
-  container.innerHTML = cart.map((item, idx) => `
+  // HTML-dagi mos keluvchi elementlarni sinflari (class) orqali topamiz
+  const container = document.querySelector('.cart-items') || document.getElementById('cartItems');
+  const footer = document.querySelector('.cart-footer');
+  const totalPriceEl = document.querySelector('.cart-total-price') || document.getElementById('cartTotal');
+  
+  if (!container) return; // Agar savatcha konteyneri topilmasa xatolik bermaydi
+
+  if (cart.length === 0) {
+    container.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">🛒</div>
+        <p>${T[currentLang]['cart_empty'] || 'Savatcha bo\'sh'}</p>
+      </div>
+    `;
+    if (footer) footer.style.display = 'none';
+    return;
+  }
+  
+  if (footer) footer.style.display = 'block';
+  
+  // BARCHA MAHSULOTLARNI MAP ORQALI AYLANIB CHIQAMIZ (forEach muammosi yechildi)
+  const itemsHTML = cart.map((item, idx) => `
     <div class="cart-item">
-      <img class="cart-item-img" src="${item.img}" alt="${getItemName(item)}">
+      <img class="cart-item-img" src="${item.img}" alt="">
       <div class="cart-item-name">${getItemName(item)}</div>
       <div class="qty-ctrl">
-        <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
+        <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
         <span class="qty-num">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
+        <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
       </div>
-      <div class="cart-item-price">${(item.price * item.qty).toLocaleString()} ${t.currency}</div>
-    </div>`).join('');
-  const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
-  document.getElementById('cartTotal').textContent = total.toLocaleString() + ' ' + t.currency;
+      <div class="cart-item-price">${(item.price * item.qty).toLocaleString()} so'm</div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = itemsHTML;
+  
+  // Jami summani hisoblash
+  const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+  if (totalPriceEl) {
+    totalPriceEl.textContent = total.toLocaleString() + ' so\'m';
+  }
 }
 
-function changeQty(idx, delta) {
-  cart[idx].qty += delta; cartCount += delta;
-  if (cart[idx].qty <= 0) cart.splice(idx, 1);
-  document.getElementById('cartCountBadge').textContent = cartCount;
-  if (cartCount === 0) document.getElementById('cart-float').classList.remove('show');
+function changeQty(idx, dir) {
+  if (idx < 0 || idx >= cart.length) return;
+  
+  cart[idx].qty += dir;
+  cartCount += dir;
+  
+  if (cart[idx].qty <= 0) {
+    cart.splice(idx, 1); // Agar mahsulot soni 0 bo'lsa, savatdan o'chiramiz
+  }
+  
+  // Savat belgisidagi sonni yangilash
+  const badge = document.getElementById('cartCountBadge') || document.querySelector('.cart-count');
+  if (badge) badge.textContent = cartCount;
+  
+  if (cartCount <= 0) {
+    const floatBtn = document.getElementById('cart-float');
+    if (floatBtn) floatBtn.classList.remove('show');
+    hideCart();
+  }
+  
   renderCart();
 }
-function openCart() { document.getElementById('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.body.style.overflow=''; }
-function closeCartOutside(e) { if (e.target===document.getElementById('cartOverlay')) closeCart(); }
 
+function openCart() {
+  const overlay = document.querySelector('.modal-overlay');
+  if (overlay) {
+    overlay.classList.add('open');
+    renderCart();
+  }
+}
+
+function hideCart() {
+  const overlay = document.querySelector('.modal-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+// Float tugma (pastdagi savat tugmasi) va Yopish tugmasini funksiyalarga bog'laymiz
+document.addEventListener('DOMContentLoaded', () => {
+  const floatBtn = document.getElementById('cart-float');
+  if (floatBtn) {
+    floatBtn.onclick = openCart;
+  }
+  const closeBtn = document.querySelector('.cart-close');
+  if (closeBtn) {
+    closeBtn.onclick = hideCart;
+  }
+  const overlay = document.querySelector('.modal-overlay');
+  if (overlay) {
+    overlay.onclick = (e) => {
+      if (e.target === overlay) hideCart();
+    };
+  }
+});
 // ══════════════════════════════════════════
 //  LIKE
 // ══════════════════════════════════════════
