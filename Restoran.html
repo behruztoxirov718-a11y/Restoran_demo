@@ -158,8 +158,7 @@
     display: flex;
     gap: 48px;
   }
-
-.stat-num {
+  .stat-num {
     font-family: 'Playfair Display', serif;
     font-size: 2.2rem;
     color: var(--dark);
@@ -669,6 +668,7 @@
     font-size: 0.8rem;
   }
   .footer-bottom span { color: var(--gold); }
+
   /* ANIMATIONS */
   .fade-up {
     opacity: 0;
@@ -720,15 +720,15 @@
 <body>
 
 <!-- NAV -->
-<nav id="navbar">
-  <div class="nav-logo">Zafar <span>Dasturxon</span></div>
+<nav>
+  <a href="#hero" class="nav-logo">Zafar <span>Dasturxon</span></a>
   <ul class="nav-links">
     <li><a href="#about">Haqimizda</a></li>
-    <li><a href="#menu">Menyu</a></li>
+    <li><a href="menyu.html">Menyu</a></li> 
     <li><a href="#reviews">Fikrlar</a></li>
     <li><a href="#reservation">Aloqa</a></li>
   </ul>
-  <button class="nav-cta" onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})">Stol Band Qilish</button>
+  <a href="#reservation" class="nav-cta">Stol Band Qilish</a>
 </nav>
 
 <!-- HERO -->
@@ -782,7 +782,107 @@
     <p class="about-text">Bizning oshpazlarimiz Samarqand, Buxoro va Farg'ona an'analaridan ilhomlangan retseptlarni zamonaviy texnikalar bilan boyitadi.</p>
     <div class="about-features">
       <div class="feature-item">
-        <div class="review-card fade-up">
+        <div class="feature-icon">🌿</div>
+        <div>
+          <div class="feature-title">Yangi Mahsulotlar</div>
+          <div class="feature-desc">Har kuni bozordan olingan mahalliy mahsulotlar</div>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">👨‍🍳</div>
+        <div>
+          <div class="feature-title">Usta Oshpazlar</div>
+          <div class="feature-desc">20+ yillik tajribali oshpaz jamoasi</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu">
+  <div class="menu-header fade-up">
+    <div class="section-tag">Bizning Menyu</div>
+    <h2 style="color:var(--dark)">Eng Sevimli Taomlar</h2>
+  </div>
+  <div class="menu-tabs fade-up">
+    <button class="tab-btn active">Asosiy</button>
+    <button class="tab-btn">Sho'rvalar</button>
+    <button class="tab-btn">Grill</button>
+    <button class="tab-btn">Shirinliklar</button>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card fade-up">
+      <div class="menu-badge">Mashhur</div>
+      <img class="menu-card-img" src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&q=80" alt="Osh">
+      <div class="menu-card-body">
+        <div class="menu-card-tag">Milliy Taom</div>
+        <div class="menu-card-name">Samarqand Oshi</div>
+        <p class="menu-card-desc">Qo'zichoq go'shti, sabzi va don'akdor guruch bilan tayyorlangan an'anaviy palov.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">45 000 so'm</span>
+          <button class="menu-order-btn">Buyurtma</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card fade-up">
+      <img class="menu-card-img" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80" alt="Kabob">
+      <div class="menu-card-body">
+        <div class="menu-card-tag">Grill</div>
+        <div class="menu-card-name">Tandir Kabob</div>
+        <p class="menu-card-desc">Tandirda pishirilgan mol go'shti, zira va do'mba yog'i bilan to'ldirilgan.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">62 000 so'm</span>
+          <button class="menu-order-btn">Buyurtma</button>
+        </div>
+      </div>
+    </div>
+    <div class="menu-card fade-up">
+      <div class="menu-badge">Yangi</div>
+      <img class="menu-card-img" src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80" alt="Salat">
+      <div class="menu-card-body">
+        <div class="menu-card-tag">Salat</div>
+        <div class="menu-card-name">Bog' Salati</div>
+        <p class="menu-card-desc">Mavsumiy sabzavotlar, limon sharbati va zaytun moyi bilan tayyorlangan salat.</p>
+        <div class="menu-card-footer">
+          <span class="menu-price">28 000 so'm</span>
+          <button class="menu-order-btn">Buyurtma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="reviews-header fade-up">
+    <div class="section-tag">Mehmonlar Fikri</div>
+    <h2>Ular Nima Deydi?</h2>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card fade-up">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <p class="review-text">"Toshkentdagi eng yaxshi restoran! Osh shunchaki ajoyib edi, atmosfera esa unutilmas. Albatta qayta kelaman."</p>
+      <div class="reviewer">
+        <img class="reviewer-avatar" src="https://i.pravatar.cc/100?img=1" alt="Mehmon">
+        <div>
+          <div class="reviewer-name">Bobur Yusupov</div>
+          <div class="reviewer-loc">Toshkent</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card fade-up">
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <p class="review-text">"Xizmat ko'rsatish darajasi yuqori, taomlar yangi va mazali. Bir so'z bilan aytganda — mukammal!"</p>
+      <div class="reviewer">
+        <img class="reviewer-avatar" src="https://i.pravatar.cc/100?img=5" alt="Mehmon">
+        <div>
+          <div class="reviewer-name">Malika Rahimova</div>
+          <div class="reviewer-loc">Samarqand</div>
+        </div>
+      </div>
+    </div>
+    <div class="review-card fade-up">
       <div class="stars">⭐⭐⭐⭐⭐</div>
       <p class="review-text">"Oilaviy bayramlarga ideal joy. Katta zal, qulay muhit va professional xizmat. Har doim masrur qaytamiz."</p>
       <div class="reviewer">
@@ -836,7 +936,7 @@
       </div>
       <div class="form-group">
         <label class="form-label">Telefon</label>
-        <input class="form-input" type="tel" placeholder="+998  _ __ __">
+        <input class="form-input" type="tel" placeholder="+998 __ ___ __ __">
       </div>
     </div>
     <div class="form-row">
@@ -909,7 +1009,7 @@
   </div>
   <div class="footer-bottom">
     <span>© 2026 Zafar Dasturxon. Barcha huquqlar himoyalangan.</span>
-    
+    <span>Dizayn: <span>Claude bilan yaratilgan</span></span>
   </div>
 </footer>
 
