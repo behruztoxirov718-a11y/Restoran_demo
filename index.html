@@ -326,11 +326,60 @@
   #scrollTop.show { display:flex; }
   #scrollTop:hover { background:var(--text); color:var(--bg); }
 
+  /* ── BURGER BUTTON ── */
+  .burger {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 40px; height: 40px;
+    background: var(--bg2); border: 1px solid var(--border);
+    cursor: pointer; padding: 8px; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .burger span {
+    display: block; width: 100%; height: 2px;
+    background: var(--text); border-radius: 2px;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── MOBILE DRAWER ── */
+  .mobile-drawer {
+    display: none;
+    position: fixed; top: 64px; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid var(--gold);
+    z-index: 99;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .mobile-drawer.open { max-height: 460px; padding: 8px 0 20px; }
+  .mobile-drawer ul { list-style: none; display: flex; flex-direction: column; }
+  .mobile-drawer ul li a {
+    display: block; padding: 15px 28px;
+    text-decoration: none; font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--border); transition: color 0.2s, background 0.2s;
+  }
+  .mobile-drawer ul li a:hover { color: var(--gold); background: rgba(201,147,58,0.06); }
+  .mobile-drawer ul li:last-child a { border-bottom: none; }
+  .mobile-drawer .drawer-cta {
+    margin: 14px 28px 0; display: block; background: var(--gold); color: #fff;
+    padding: 14px; text-align: center; font-size: 0.86rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+    transition: background 0.3s;
+  }
+  .mobile-drawer .drawer-cta:hover { background: var(--rust); }
+
   /* ── RESPONSIVE ── */
   @media (max-width:900px) {
-    nav { padding:16px 18px; gap:8px; }
+    nav { padding:14px 18px; gap:10px; }
     .nav-links { display:none; }
     .nav-cta { display:none; }
+    .burger { display:flex; }
+    .mobile-drawer { display:block; }
     .lang-btn { padding:4px 8px; font-size:0.68rem; }
     #hero { grid-template-columns:1fr; }
     .hero-left { padding:60px 24px; }
@@ -358,6 +407,10 @@
     <li><a href="#reservation" data-i18n="nav_contact">Aloqa</a></li>
   </ul>
   <div class="nav-controls">
+    <!-- Burger (mobile only) -->
+    <button class="burger" id="burgerBtn" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="lang-switcher">
       <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
       <button class="lang-btn" onclick="setLang('ru')">RU</button>
@@ -367,6 +420,17 @@
     <button class="nav-cta" onclick="document.getElementById('reservation').scrollIntoView({behavior:'smooth'})" data-i18n="nav_book">Stol Band Qilish</button>
   </div>
 </nav>
+
+<!-- MOBILE DRAWER -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <ul>
+    <li><a href="#about" data-i18n="nav_about" onclick="closeDrawer()">Haqimizda</a></li>
+    <li><a href="menyu.html" data-i18n="nav_menu" onclick="closeDrawer()">Menyu</a></li>
+    <li><a href="#reviews" data-i18n="nav_reviews" onclick="closeDrawer()">Fikrlar</a></li>
+    <li><a href="#reservation" data-i18n="nav_contact" onclick="closeDrawer()">Aloqa</a></li>
+  </ul>
+  <a href="#reservation" class="drawer-cta" data-i18n="nav_book" onclick="closeDrawer()">Stol Band Qilish</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -997,6 +1061,28 @@ function setLang(lang) {
     if (t[key]) el.placeholder = t[key];
   });
 }
+
+// ══════════════════════════════════════════
+//  BURGER MENU
+// ══════════════════════════════════════════
+function toggleDrawer() {
+  const btn = document.getElementById('burgerBtn');
+  const drawer = document.getElementById('mobileDrawer');
+  btn.classList.toggle('open');
+  drawer.classList.toggle('open');
+  document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+}
+function closeDrawer() {
+  document.getElementById('burgerBtn').classList.remove('open');
+  document.getElementById('mobileDrawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close drawer on outside click
+document.addEventListener('click', e => {
+  const drawer = document.getElementById('mobileDrawer');
+  const btn = document.getElementById('burgerBtn');
+  if (drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) closeDrawer();
+});
 
 // ══════════════════════════════════════════
 //  DARK MODE
