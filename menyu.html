@@ -467,11 +467,61 @@
   }
   .fade-up.visible { opacity: 1; transform: translateY(0); }
 
+  /* ── BURGER BUTTON ── */
+  .burger {
+    display: none;
+    flex-direction: column; justify-content: center; gap: 5px;
+    width: 40px; height: 40px;
+    background: var(--bg2); border: 1px solid var(--border);
+    cursor: pointer; padding: 8px; flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .burger span {
+    display: block; width: 100%; height: 2px;
+    background: var(--text); border-radius: 2px;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+  .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── MOBILE DRAWER ── */
+  .mobile-drawer {
+    display: none;
+    position: fixed; top: 62px; left: 0; right: 0;
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px);
+    border-bottom: 2px solid var(--gold);
+    z-index: 99;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .mobile-drawer.open { max-height: 460px; padding: 8px 0 20px; }
+  .mobile-drawer ul { list-style: none; display: flex; flex-direction: column; }
+  .mobile-drawer ul li a {
+    display: block; padding: 15px 28px;
+    text-decoration: none; font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--border); transition: color 0.2s, background 0.2s;
+  }
+  .mobile-drawer ul li a:hover,
+  .mobile-drawer ul li a.active { color: var(--gold); background: rgba(201,147,58,0.06); }
+  .mobile-drawer ul li:last-child a { border-bottom: none; }
+  .mobile-drawer .drawer-cta {
+    margin: 14px 28px 0; display: block; background: var(--gold); color: #fff;
+    padding: 14px; text-align: center; font-size: 0.86rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;
+    transition: background 0.3s;
+  }
+  .mobile-drawer .drawer-cta:hover { background: var(--rust); }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 960px) {
     nav { padding: 14px 18px; gap: 10px; }
     .nav-links { display: none; }
     .nav-cta { display: none; }
+    .burger { display: flex; }
+    .mobile-drawer { display: block; }
     .menu-hero { padding: 105px 22px 56px; }
     .cat-bar { padding: 0 14px; }
     .search-wrap { padding: 22px 18px 0; }
@@ -486,14 +536,18 @@
 
 <!-- NAV -->
 <nav id="navbar">
-  <a href="index.html" class="nav-logo">Zafar <span>Dasturxon</span></a>
+  <a href="restoran.html" class="nav-logo">Zafar <span>Dasturxon</span></a>
   <ul class="nav-links">
-    <li><a href="index.html" data-i18n="nav_about">Haqimizda</a></li>
-    <li><a href="#" class="active" data-i18n="nav_menu">Menyu</a></li>
-    <li><a href="index.html" data-i18n="nav_reviews">Fikrlar</a></li>
-    <li><a href="index.html" data-i18n="nav_contact">Aloqa</a></li>
+    <li><a href="restoran.html#about" data-i18n="nav_about">Haqimizda</a></li>
+    <li><a href="menyu.html" class="active" data-i18n="nav_menu">Menyu</a></li>
+    <li><a href="restoran.html#reviews" data-i18n="nav_reviews">Fikrlar</a></li>
+    <li><a href="restoran.html#reservation" data-i18n="nav_contact">Aloqa</a></li>
   </ul>
   <div class="nav-controls">
+    <!-- Burger (mobile only) -->
+    <button class="burger" id="burgerBtn" onclick="toggleDrawer()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <!-- Language -->
     <div class="lang-switcher">
       <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
@@ -503,9 +557,20 @@
     <!-- Dark mode -->
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Dark / Light">🌙</button>
     <!-- CTA -->
-    <a href="index.html" class="nav-cta" data-i18n="nav_book">Stol Band Qilish</a>
+    <a href="restoran.html#reservation" class="nav-cta" data-i18n="nav_book">Stol Band Qilish</a>
   </div>
 </nav>
+
+<!-- MOBILE DRAWER -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <ul>
+    <li><a href="restoran.html#about" data-i18n="nav_about" onclick="closeDrawer()">Haqimizda</a></li>
+    <li><a href="menyu.html" class="active" data-i18n="nav_menu" onclick="closeDrawer()">Menyu</a></li>
+    <li><a href="restoran.html#reviews" data-i18n="nav_reviews" onclick="closeDrawer()">Fikrlar</a></li>
+    <li><a href="restoran.html#reservation" data-i18n="nav_contact" onclick="closeDrawer()">Aloqa</a></li>
+  </ul>
+  <a href="restoran.html#reservation" class="drawer-cta" data-i18n="nav_book" onclick="closeDrawer()">Stol Band Qilish</a>
+</div>
 
 <!-- HERO -->
 <div class="menu-hero" id="menuHero" data-word="MENYU">
@@ -1060,6 +1125,27 @@ function setLang(lang) {
 }
 
 // ══════════════════════════════════════════
+//  BURGER MENU
+// ══════════════════════════════════════════
+function toggleDrawer() {
+  const btn = document.getElementById('burgerBtn');
+  const drawer = document.getElementById('mobileDrawer');
+  btn.classList.toggle('open');
+  drawer.classList.toggle('open');
+  document.body.style.overflow = drawer.classList.contains('open') ? 'hidden' : '';
+}
+function closeDrawer() {
+  document.getElementById('burgerBtn').classList.remove('open');
+  document.getElementById('mobileDrawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('click', e => {
+  const drawer = document.getElementById('mobileDrawer');
+  const btn = document.getElementById('burgerBtn');
+  if (drawer && drawer.classList.contains('open') && !drawer.contains(e.target) && !btn.contains(e.target)) closeDrawer();
+});
+
+// ══════════════════════════════════════════
 //  DARK MODE
 // ══════════════════════════════════════════
 let isDark = false;
@@ -1076,7 +1162,7 @@ function toggleTheme() {
 })();
 
 // ══════════════════════════════════════════
-//  CART (SAVATCHA TIZIMI - BUTUNLAY TUZATILDI)
+//  CART
 // ══════════════════════════════════════════
 let cart = [];
 let cartCount = 0;
@@ -1087,41 +1173,19 @@ function addToCart(btn) {
   const name = card.getAttribute('data-name-' + lang) || card.getAttribute('data-name-uz');
   const price = parseInt(card.dataset.price);
   const img = card.dataset.img || card.querySelector('.card-img').src;
-  
-  // Mahsulot savatda bor-yo'qligini tekshirish
   const existing = cart.find(i => i.nameUz === card.getAttribute('data-name-uz'));
-  
-  if (existing) {
-    existing.qty++;
-  } else {
-    cart.push({
-      nameUz: card.getAttribute('data-name-uz'),
-      nameRu: card.getAttribute('data-name-ru'),
-      nameEn: card.getAttribute('data-name-en'),
-      price,
-      img,
-      qty: 1
-    });
-  }
-  
+  if (existing) { existing.qty++; }
+  else { cart.push({ nameUz: card.getAttribute('data-name-uz'), nameRu: card.getAttribute('data-name-ru'), nameEn: card.getAttribute('data-name-en'), price, img, qty: 1 }); }
   cartCount++;
-  
-  // Elementlar mavjudligini xavfsiz tekshirish
-  const badge = document.getElementById('cartCountBadge') || document.querySelector('.cart-count');
-  if (badge) badge.textContent = cartCount;
-  
-  const floatBtn = document.getElementById('cart-float');
-  if (floatBtn) floatBtn.classList.add('show');
-  
+  document.getElementById('cartCountBadge').textContent = cartCount;
+  document.getElementById('cart-float').classList.add('show');
   const addSpan = btn.querySelector('[data-i18n="add_btn"]');
   if (addSpan) addSpan.textContent = '✓';
   btn.classList.add('added');
-  
   setTimeout(() => {
-    if (addSpan) addSpan.textContent = T[currentLang]['add_btn'] || 'Qo\'shish';
+    if (addSpan) addSpan.textContent = T[currentLang]['add_btn'];
     btn.classList.remove('added');
   }, 1500);
-  
   renderCart();
 }
 
@@ -1132,102 +1196,42 @@ function getItemName(item) {
 }
 
 function renderCart() {
-  // HTML-dagi mos keluvchi elementlarni sinflari (class) orqali topamiz
-  const container = document.querySelector('.cart-items') || document.getElementById('cartItems');
-  const footer = document.querySelector('.cart-footer');
-  const totalPriceEl = document.querySelector('.cart-total-price') || document.getElementById('cartTotal');
-  
-  if (!container) return; // Agar savatcha konteyneri topilmasa xatolik bermaydi
-
-  if (cart.length === 0) {
-    container.innerHTML = `
-      <div class="cart-empty">
-        <div class="cart-empty-icon">🛒</div>
-        <p>${T[currentLang]['cart_empty'] || 'Savatcha bo\'sh'}</p>
-      </div>
-    `;
-    if (footer) footer.style.display = 'none';
-    return;
-  }
-  
-  if (footer) footer.style.display = 'block';
-  
-  // BARCHA MAHSULOTLARNI MAP ORQALI AYLANIB CHIQAMIZ (forEach muammosi yechildi)
-  const itemsHTML = cart.map((item, idx) => `
+  const container = document.getElementById('cartItems');
+  const empty = document.getElementById('cartEmpty');
+  const footer = document.getElementById('cartFooter');
+  const t = T[currentLang];
+  document.querySelector('[data-i18n="cart_empty"]').textContent = t.cart_empty;
+  document.querySelector('[data-i18n="cart_title"]').textContent = t.cart_title;
+  document.querySelector('[data-i18n="cart_total"]').textContent = t.cart_total;
+  document.querySelector('[data-i18n="checkout_btn"]').textContent = t.checkout_btn;
+  if (cart.length === 0) { empty.style.display='block'; footer.style.display='none'; return; }
+  empty.style.display = 'none'; footer.style.display = 'block';
+  container.innerHTML = cart.map((item, idx) => `
     <div class="cart-item">
-      <img class="cart-item-img" src="${item.img}" alt="">
+      <img class="cart-item-img" src="${item.img}" alt="${getItemName(item)}">
       <div class="cart-item-name">${getItemName(item)}</div>
       <div class="qty-ctrl">
-        <button class="qty-btn" onclick="changeQty(${idx}, -1)">−</button>
+        <button class="qty-btn" onclick="changeQty(${idx},-1)">−</button>
         <span class="qty-num">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${idx}, 1)">+</button>
+        <button class="qty-btn" onclick="changeQty(${idx},1)">+</button>
       </div>
-      <div class="cart-item-price">${(item.price * item.qty).toLocaleString()} so'm</div>
-    </div>
-  `).join('');
-  
-  container.innerHTML = itemsHTML;
-  
-  // Jami summani hisoblash
-  const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-  if (totalPriceEl) {
-    totalPriceEl.textContent = total.toLocaleString() + ' so\'m';
-  }
+      <div class="cart-item-price">${(item.price * item.qty).toLocaleString()} ${t.currency}</div>
+    </div>`).join('');
+  const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  document.getElementById('cartTotal').textContent = total.toLocaleString() + ' ' + t.currency;
 }
 
-function changeQty(idx, dir) {
-  if (idx < 0 || idx >= cart.length) return;
-  
-  cart[idx].qty += dir;
-  cartCount += dir;
-  
-  if (cart[idx].qty <= 0) {
-    cart.splice(idx, 1); // Agar mahsulot soni 0 bo'lsa, savatdan o'chiramiz
-  }
-  
-  // Savat belgisidagi sonni yangilash
-  const badge = document.getElementById('cartCountBadge') || document.querySelector('.cart-count');
-  if (badge) badge.textContent = cartCount;
-  
-  if (cartCount <= 0) {
-    const floatBtn = document.getElementById('cart-float');
-    if (floatBtn) floatBtn.classList.remove('show');
-    hideCart();
-  }
-  
+function changeQty(idx, delta) {
+  cart[idx].qty += delta; cartCount += delta;
+  if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  document.getElementById('cartCountBadge').textContent = cartCount;
+  if (cartCount === 0) document.getElementById('cart-float').classList.remove('show');
   renderCart();
 }
+function openCart() { document.getElementById('cartOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.body.style.overflow=''; }
+function closeCartOutside(e) { if (e.target===document.getElementById('cartOverlay')) closeCart(); }
 
-function openCart() {
-  const overlay = document.querySelector('.modal-overlay');
-  if (overlay) {
-    overlay.classList.add('open');
-    renderCart();
-  }
-}
-
-function hideCart() {
-  const overlay = document.querySelector('.modal-overlay');
-  if (overlay) overlay.classList.remove('open');
-}
-
-// Float tugma (pastdagi savat tugmasi) va Yopish tugmasini funksiyalarga bog'laymiz
-document.addEventListener('DOMContentLoaded', () => {
-  const floatBtn = document.getElementById('cart-float');
-  if (floatBtn) {
-    floatBtn.onclick = openCart;
-  }
-  const closeBtn = document.querySelector('.cart-close');
-  if (closeBtn) {
-    closeBtn.onclick = hideCart;
-  }
-  const overlay = document.querySelector('.modal-overlay');
-  if (overlay) {
-    overlay.onclick = (e) => {
-      if (e.target === overlay) hideCart();
-    };
-  }
-});
 // ══════════════════════════════════════════
 //  LIKE
 // ══════════════════════════════════════════
