@@ -756,26 +756,26 @@
     <div class="form-row">
       <div class="form-group">
         <label class="form-label" data-i18n="form_name">Ism</label>
-        <input class="form-input" type="text" data-i18n-placeholder="form_name_ph" placeholder="Ismingiz">
+        <input class="form-input" id="res-name" type="text" data-i18n-placeholder="form_name_ph" placeholder="Ismingiz" required>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="form_phone">Telefon</label>
-        <input class="form-input" type="tel" placeholder="+998 __ ___ __ __">
+        <input class="form-input" id="res-phone" type="tel" placeholder="+998 __ ___ __ __" required>
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
         <label class="form-label" data-i18n="form_date">Sana</label>
-        <input class="form-input" type="date">
+        <input class="form-input" id="res-date" type="date" required>
       </div>
       <div class="form-group">
         <label class="form-label" data-i18n="form_time">Vaqt</label>
-        <input class="form-input" type="time">
+        <input class="form-input" id="res-time" type="time" required>
       </div>
     </div>
     <div class="form-group" style="margin-bottom:16px">
       <label class="form-label" data-i18n="form_guests">Mehmonlar Soni</label>
-      <select class="form-select form-input">
+      <select class="form-select form-input" id="res-guests">
         <option data-i18n="guests1">1–2 kishi</option>
         <option data-i18n="guests2">3–4 kishi</option>
         <option data-i18n="guests3">5–8 kishi</option>
@@ -784,9 +784,9 @@
     </div>
     <div class="form-group">
       <label class="form-label" data-i18n="form_wish">Maxsus Istak</label>
-      <input class="form-input" type="text" data-i18n-placeholder="form_wish_ph" placeholder="Tug'ilgan kun, allergiya...">
+      <input class="form-input" id="res-wish" type="text" data-i18n-placeholder="form_wish_ph" placeholder="Tug'ilgan kun, allergiya...">
     </div>
-    <button class="form-btn" data-i18n="form_btn">Stol Band Qilish →</button>
+    <button class="form-btn" id="resBtn" data-i18n="form_btn">Stol Band Qilish →</button>
   </div>
 </section>
 
@@ -1130,6 +1130,86 @@ window.addEventListener('scroll', () => {
   scrollBtn.classList.toggle('show', window.scrollY > 500);
   document.getElementById('navbar').style.boxShadow = window.scrollY > 40 ? '0 4px 32px rgba(26,18,8,0.14)' : 'none';
 });
+
+// ══════════════════════════════════════════
+//  TELEGRAM BOT REZERVATSIYA INTEGRATSIYASI
+// ══════════════════════════════════════════
+const TG_BOT_TOKEN = '8868012287:AAFa67M5cikUi41-QfyxGBf9NSxxgKwENqA'; // O'zingizning bot API tokeningizni yozing
+const TG_CHAT_ID = '6148610387';     // Shaxsiy Chat IDingiz yoki guruh ID sini kiriting
+
+document.getElementById('resBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('res-name').value.trim();
+  const phone = document.getElementById('res-phone').value.trim();
+  const date = document.getElementById('res-date').value;
+  const time = document.getElementById('res-time').value;
+  const guests = document.getElementById('res-guests').value;
+  const wish = document.getElementById('res-wish').value.trim();
+
+  // Majburiy maydonlarni tekshirish
+  if (!name || !phone || !date || !time) {
+    alert(currentLang === 'uz' ? 'Iltimos, barcha majburiy maydonlarni to\'ldiring!' :
+          currentLang === 'ru' ? 'Пожалуйста, заполните все обязательные поля!' :
+          'Please fill in all required fields!');
+    return;
+  }
+
+  // Telegram xabar formati (Markdown formatida)
+  const message = `🔔 *Yangi Stol Band Qilindi!* \n\n` +
+                  `👤 *Ism:* ${name}\n` +
+                  `📞 *Telefon:* ${phone}\n` +
+                  `📅 *Sana:* ${date}\n` +
+                  `🕒 *Vaqt:* ${time}\n` +
+                  `👥 *Mehmonlar soni:* ${guests}\n` +
+                  `✍️ *Maxsus istak:* ${wish || 'Yo\'q'}`;
+
+  const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+  const btn = this;
+  
+  btn.disabled = true;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = currentLang === 'uz' ? 'Yuborilmoqda...' : currentLang === 'ru' ? 'Отправка...' : 'Sending...';
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chat_id: TG_CHAT_ID,
+      text: message,
+      parse_mode: 'Markdown'
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      alert(currentLang === 'uz' ? 'Stol muvaffaqiyatli band qilindi! Tez orada siz bilan bog\'lanamiz.' :
+            currentLang === 'ru' ? 'Стол успешно забронирован! Мы свяжемся с вами в ближайшее время.' :
+            'Table successfully reserved! We will contact you soon.');
+      
+      // Formani tozalash
+      document.getElementById('res-name').value = '';
+      document.getElementById('res-phone').value = '';
+      document.getElementById('res-date').value = '';
+      document.getElementById('res-time').value = '';
+      document.getElementById('res-wish').value = '';
+    } else {
+      alert(currentLang === 'uz' ? 'Xatolik yuz berdi. Bot token yoki chat ID ni tekshiring.' : 'Произошла ошибка. Проверьте токен или chat ID.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert(currentLang === 'uz' ? 'Tarmoq xatosi yuz berdi. Internet aloqangizni tekshiring.' : 'Ошибка сети. Проверьте соединение.');
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  });
+});
 </script>
 </body>
 </html>
+
+

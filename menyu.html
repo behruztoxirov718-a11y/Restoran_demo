@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uz" data-theme="light">
 <head>
@@ -35,7 +36,7 @@
     --gold:     #E8B86D;
     --rust:     #D4703A;
     --text:     #E8DEC8;
-    --muted:    #A89880;
+    --muted:    --muted;
     --border:   rgba(232,184,109,0.12);
     --nav-bg:   rgba(18,13,5,0.92);
     --card-shadow: rgba(0,0,0,0.45);
@@ -982,7 +983,7 @@
         <span data-i18n="cart_total">Jami:</span>
         <span class="cart-total-price" id="cartTotal">0</span>
       </div>
-      <button class="checkout-btn" data-i18n="checkout_btn">Buyurtma Berish →</button>
+      <button class="checkout-btn" id="checkoutBtn" data-i18n="checkout_btn">Buyurtma Berish →</button>
     </div>
   </div>
 </div>
@@ -1291,6 +1292,81 @@ document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
 
 window.addEventListener('scroll', () => {
   document.getElementById('navbar').style.boxShadow = window.scrollY > 40 ? '0 4px 24px var(--card-shadow)' : 'none';
+});
+
+// ══════════════════════════════════════════
+//  TELEGRAM BOT BUYURTMA INTEGRATSIYASI
+// ══════════════════════════════════════════
+const TG_BOT_TOKEN = '8868012287:AAFa67M5cikUi41-QfyxGBf9NSxxgKwENqA'; // O'zingizning bot API tokeningizni yozing
+const TG_CHAT_ID = '6148610387';     // Shaxsiy Chat IDingiz yoki guruh ID sini kiriting
+
+document.getElementById('checkoutBtn').addEventListener('click', function() {
+  if (cart.length === 0) return;
+
+  const t = T[currentLang];
+  
+  // Mijozdan ism va telefon raqamini so'rash
+  const clientName = prompt(currentLang === 'uz' ? 'Ismingizni kiriting:' : 'Введите ваше имя:');
+  if (!clientName) return;
+  
+  const clientPhone = prompt(currentLang === 'uz' ? 'Telefon raqamingizni kiriting:' : 'Введите ваш номер телефона:');
+  if (!clientPhone) return;
+
+  // Xabar boshlanishi
+  let orderDetails = `🛒 *Yangi Buyurtma Keldi!* \n\n` +
+                      `👤 *Mijoz:* ${clientName}\n` +
+                      `📞 *Telefon:* ${clientPhone}\n\n` +
+                      `📦 *Buyurtma tarkibi:*\n`;
+  
+  cart.forEach((item, idx) => {
+    orderDetails += `${idx + 1}. *${getItemName(item)}* — ${item.qty} dona x ${item.price.toLocaleString()} ${t.currency}\n`;
+  });
+
+  const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  orderDetails += `\n💰 *Jami summa:* ${total.toLocaleString()} ${t.currency}`;
+
+  const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
+  const btn = this;
+  
+  btn.disabled = true;
+  const originalText = btn.innerHTML;
+  btn.innerHTML = currentLang === 'uz' ? 'Yuborilmoqda...' : 'Отправка...';
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      chat_id: TG_CHAT_ID,
+      text: orderDetails,
+      parse_mode: 'Markdown'
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) {
+      alert(currentLang === 'uz' ? 'Buyurtmangiz muvaffaqiyatli qabul qilindi! Operatorimiz tez orada aloqaga chiqadi.' : 'Ваш заказ успешно принят! Наш оператор скоро свяжется с вами.');
+      
+      // Savatni tozalash
+      cart = [];
+      cartCount = 0;
+      document.getElementById('cartCountBadge').textContent = 0;
+      document.getElementById('cart-float').classList.remove('show');
+      closeCart();
+      renderCart();
+    } else {
+      alert('Xatolik yuz berdi. Bot sozlamalarini tekshiring.');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Tarmoq xatosi yuz berdi.');
+  })
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  });
 });
 </script>
 </body>
