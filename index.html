@@ -393,6 +393,100 @@
     footer { padding:48px 24px 28px; }
     .footer-bottom { flex-direction:column; gap:10px; text-align:center; }
   }
+
+  /* ── RESERVATION MODAL ── */
+  .res-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,7,3,0.72);
+    z-index: 400; backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .res-overlay.open { display: flex; }
+  .res-modal {
+    background: var(--bg, #F5EFE0);
+    width: 100%; max-width: 480px;
+    animation: slideUp 0.32s ease;
+    transition: background 0.35s;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(36px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .res-modal-header {
+    background: var(--about-bg, #1A1208);
+    padding: 26px 32px 22px; position: relative;
+  }
+  .res-modal-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; color: #F5EFE0; margin-bottom: 5px;
+  }
+  .res-modal-header p { font-size: 0.8rem; color: rgba(245,239,224,0.45); }
+  .res-modal-close {
+    position: absolute; top: 18px; right: 22px;
+    background: none; border: none; font-size: 1.4rem;
+    color: rgba(245,239,224,0.45); cursor: pointer;
+    line-height: 1; transition: color 0.2s;
+  }
+  .res-modal-close:hover { color: var(--gold, #C9933A); }
+  .res-modal-body { padding: 26px 32px 30px; }
+  .res-modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .res-modal-field { display: flex; flex-direction: column; gap: 7px; }
+  .res-modal-field.full { margin-bottom: 14px; }
+  .res-modal-field label {
+    font-size: 0.7rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted, #7A6E5E);
+  }
+  .res-modal-field input,
+  .res-modal-field select {
+    padding: 12px 14px;
+    background: var(--bg2, #FFFBF3);
+    border: 1px solid var(--border, rgba(58,46,30,0.12));
+    font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+    color: var(--text, #3A2E1E); outline: none;
+    transition: border-color 0.3s, background 0.35s;
+    width: 100%;
+  }
+  .res-modal-field input::placeholder { color: var(--muted); opacity: 0.55; }
+  .res-modal-field input:focus,
+  .res-modal-field select:focus { border-color: var(--gold, #C9933A); }
+  .res-modal-field select { appearance: none; cursor: pointer; }
+  .res-error {
+    font-size: 0.78rem; color: var(--rust, #8B3A1C);
+    min-height: 18px; margin-bottom: 10px;
+  }
+  .res-send-btn {
+    width: 100%; padding: 15px;
+    background: var(--about-bg, #1A1208); color: #F5EFE0;
+    border: none; font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .res-send-btn:hover:not(:disabled) { background: var(--gold, #C9933A); transform: translateY(-2px); }
+  .res-send-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  /* Success */
+  .res-success {
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 52px 32px; text-align: center;
+  }
+  .res-success.show { display: flex; }
+  .res-success-icon { font-size: 3.2rem; margin-bottom: 16px; animation: popIn 0.5s ease; }
+  @keyframes popIn { 0%{transform:scale(0)} 70%{transform:scale(1.15)} 100%{transform:scale(1)} }
+  .res-success h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.45rem; color: var(--text, #3A2E1E);
+    margin-bottom: 10px; transition: color 0.35s;
+  }
+  .res-success p { font-size: 0.86rem; color: var(--muted, #7A6E5E); line-height: 1.6; }
+  @media (max-width: 520px) {
+    .res-modal-row { grid-template-columns: 1fr; }
+    .res-modal-body { padding: 22px 20px 26px; }
+    .res-modal-header { padding: 22px 20px 18px; }
+  }
 </style>
 </head>
 <body>
@@ -750,43 +844,21 @@
       </div>
     </div>
   </div>
-  <div class="reservation-form fade-up">
-    <h3 data-i18n="form_title">Rezervatsiya</h3>
-    <p class="form-subtitle" data-i18n="form_subtitle">Barcha maydonlarni to'ldiring</p>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label" data-i18n="form_name">Ism</label>
-        <input class="form-input" id="res-name" type="text" data-i18n-placeholder="form_name_ph" placeholder="Ismingiz" required>
+  <div class="reservation-form fade-up" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:28px;text-align:center;">
+    <div style="font-size:3rem;">🍽️</div>
+    <h3 data-i18n="form_title" style="font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--cream);">Rezervatsiya</h3>
+    <p data-i18n="form_subtitle" style="color:rgba(245,239,224,0.5);font-size:0.95rem;line-height:1.7;max-width:320px;">Barcha maydonlarni to'ldiring — biz tez orada aloqaga chiqamiz.</p>
+    <div style="display:flex;flex-direction:column;gap:16px;width:100%;">
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,147,58,0.2);">
+        <span style="font-size:1.2rem;">📍</span>
+        <span style="font-size:0.88rem;color:rgba(245,239,224,0.7);" data-i18n="contact_address_val">Amir Temur ko'chasi, 15, Toshkent</span>
       </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="form_phone">Telefon</label>
-        <input class="form-input" id="res-phone" type="tel" placeholder="+998 __ ___ __ __" required>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label" data-i18n="form_date">Sana</label>
-        <input class="form-input" id="res-date" type="date" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="form_time">Vaqt</label>
-        <input class="form-input" id="res-time" type="time" required>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,147,58,0.2);">
+        <span style="font-size:1.2rem;">🕐</span>
+        <span style="font-size:0.88rem;color:rgba(245,239,224,0.7);" data-i18n="contact_hours_val">Dushanba–Yakshanba: 10:00 – 23:00</span>
       </div>
     </div>
-    <div class="form-group" style="margin-bottom:16px">
-      <label class="form-label" data-i18n="form_guests">Mehmonlar Soni</label>
-      <select class="form-select form-input" id="res-guests">
-        <option data-i18n="guests1">1–2 kishi</option>
-        <option data-i18n="guests2">3–4 kishi</option>
-        <option data-i18n="guests3">5–8 kishi</option>
-        <option data-i18n="guests4">9+ kishi (banket)</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label" data-i18n="form_wish">Maxsus Istak</label>
-      <input class="form-input" id="res-wish" type="text" data-i18n-placeholder="form_wish_ph" placeholder="Tug'ilgan kun, allergiya...">
-    </div>
-    <button class="form-btn" id="resBtn" data-i18n="form_btn">Stol Band Qilish →</button>
+    <button class="form-btn" id="resBtn" onclick="openResModal()" data-i18n="form_btn" style="width:100%;margin-top:8px;">Stol Band Qilish →</button>
   </div>
 </section>
 
@@ -1137,79 +1209,193 @@ window.addEventListener('scroll', () => {
 const TG_BOT_TOKEN = '8868012287:AAFa67M5cikUi41-QfyxGBf9NSxxgKwENqA'; // O'zingizning bot API tokeningizni yozing
 const TG_CHAT_ID = '6148610387';     // Shaxsiy Chat IDingiz yoki guruh ID sini kiriting
 
+// resBtn in page still scrolls to section; actual submit now uses modal
 document.getElementById('resBtn').addEventListener('click', function(e) {
   e.preventDefault();
+  openResModal();
+});
 
-  const name = document.getElementById('res-name').value.trim();
-  const phone = document.getElementById('res-phone').value.trim();
-  const date = document.getElementById('res-date').value;
-  const time = document.getElementById('res-time').value;
-  const guests = document.getElementById('res-guests').value;
-  const wish = document.getElementById('res-wish').value.trim();
+function openResModal() {
+  const labels = {
+    uz: { title:'Rezervatsiya', sub:"Ma'lumotlaringizni kiriting", name:'Ism', phone:'Telefon',
+          date:'Sana', time:'Vaqt', guests:'Mehmonlar Soni', wish:'Maxsus Istak',
+          namePh:'Ismingiz', wishPh:"Tug'ilgan kun, allergiya...", send:'Stol Band Qilish →',
+          g1:'1–2 kishi', g2:'3–4 kishi', g3:'5–8 kishi', g4:'9+ kishi (banket)' },
+    ru: { title:'Бронирование', sub:'Введите ваши данные', name:'Имя', phone:'Телефон',
+          date:'Дата', time:'Время', guests:'Количество Гостей', wish:'Особые Пожелания',
+          namePh:'Ваше имя', wishPh:'День рождения, аллергия...', send:'Забронировать Стол →',
+          g1:'1–2 человека', g2:'3–4 человека', g3:'5–8 человек', g4:'9+ человек (банкет)' },
+    en: { title:'Reservation', sub:'Enter your details', name:'Name', phone:'Phone',
+          date:'Date', time:'Time', guests:'Number of Guests', wish:'Special Request',
+          namePh:'Your name', wishPh:'Birthday, allergy...', send:'Reserve Table →',
+          g1:'1–2 people', g2:'3–4 people', g3:'5–8 people', g4:'9+ people (banquet)' }
+  };
+  const l = labels[currentLang] || labels.uz;
+  document.getElementById('resModalTitle').textContent  = l.title;
+  document.getElementById('resModalSub').textContent    = l.sub;
+  document.getElementById('rLabelName').textContent     = l.name;
+  document.getElementById('rLabelPhone').textContent    = l.phone;
+  document.getElementById('rLabelDate').textContent     = l.date;
+  document.getElementById('rLabelTime').textContent     = l.time;
+  document.getElementById('rLabelGuests').textContent   = l.guests;
+  document.getElementById('rLabelWish').textContent     = l.wish;
+  document.getElementById('rm-name').placeholder        = l.namePh;
+  document.getElementById('rm-wish').placeholder        = l.wishPh;
+  document.getElementById('resSendLabel').textContent   = l.send;
+  const sel = document.getElementById('rm-guests');
+  [l.g1, l.g2, l.g3, l.g4].forEach((t,i) => { if(sel.options[i]) sel.options[i].text = t; });
+  // Reset
+  ['rm-name','rm-phone','rm-date','rm-time','rm-wish'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('resErrorMsg').textContent = '';
+  document.getElementById('resSendBtn').disabled = false;
+  document.getElementById('resSendLabel').textContent = l.send;
+  document.getElementById('resModalBody').style.display = '';
+  document.getElementById('resSuccess').classList.remove('show');
+  document.getElementById('resOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
 
-  // Majburiy maydonlarni tekshirish
+function closeResModal() {
+  document.getElementById('resOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeResOutside(e) {
+  if (e.target === document.getElementById('resOverlay')) closeResModal();
+}
+
+function submitReservation() {
+  const name   = document.getElementById('rm-name').value.trim();
+  const phone  = document.getElementById('rm-phone').value.trim();
+  const date   = document.getElementById('rm-date').value;
+  const time   = document.getElementById('rm-time').value;
+  const guests = document.getElementById('rm-guests').value;
+  const wish   = document.getElementById('rm-wish').value.trim();
+  const errEl  = document.getElementById('resErrorMsg');
+
+  const errTexts = {
+    uz: "Iltimos, ism, telefon, sana va vaqtni kiriting!",
+    ru: "Пожалуйста, заполните имя, телефон, дату и время!",
+    en: "Please enter name, phone, date and time!"
+  };
   if (!name || !phone || !date || !time) {
-    alert(currentLang === 'uz' ? 'Iltimos, barcha majburiy maydonlarni to\'ldiring!' :
-          currentLang === 'ru' ? 'Пожалуйста, заполните все обязательные поля!' :
-          'Please fill in all required fields!');
+    errEl.textContent = errTexts[currentLang] || errTexts.uz;
+    if (!name)  { document.getElementById('rm-name').style.borderColor  = 'var(--rust)'; }
+    if (!phone) { document.getElementById('rm-phone').style.borderColor = 'var(--rust)'; }
+    if (!date)  { document.getElementById('rm-date').style.borderColor  = 'var(--rust)'; }
+    if (!time)  { document.getElementById('rm-time').style.borderColor  = 'var(--rust)'; }
     return;
   }
+  ['rm-name','rm-phone','rm-date','rm-time'].forEach(id => document.getElementById(id).style.borderColor = '');
+  errEl.textContent = '';
 
-  // Telegram xabar formati (Markdown formatida)
-  const message = `🔔 *Yangi Stol Band Qilindi!* \n\n` +
-                  `👤 *Ism:* ${name}\n` +
-                  `📞 *Telefon:* ${phone}\n` +
-                  `📅 *Sana:* ${date}\n` +
-                  `🕒 *Vaqt:* ${time}\n` +
-                  `👥 *Mehmonlar soni:* ${guests}\n` +
-                  `✍️ *Maxsus istak:* ${wish || 'Yo\'q'}`;
-
-  const url = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
-  const btn = this;
-  
+  const btn = document.getElementById('resSendBtn');
+  const lbl = document.getElementById('resSendLabel');
   btn.disabled = true;
-  const originalText = btn.innerHTML;
-  btn.innerHTML = currentLang === 'uz' ? 'Yuborilmoqda...' : currentLang === 'ru' ? 'Отправка...' : 'Sending...';
+  lbl.textContent = currentLang === 'uz' ? 'Yuborilmoqda...' : currentLang === 'ru' ? 'Отправка...' : 'Sending...';
 
-  fetch(url, {
+  const message = `🔔 *Yangi Stol Band Qilindi!*\n\n` +
+    `👤 *Ism:* ${name}\n` +
+    `📞 *Telefon:* ${phone}\n` +
+    `📅 *Sana:* ${date}\n` +
+    `🕒 *Vaqt:* ${time}\n` +
+    `👥 *Mehmonlar:* ${guests}\n` +
+    `✍️ *Istak:* ${wish || "Yo'q"}`;
+
+  fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      chat_id: TG_CHAT_ID,
-      text: message,
-      parse_mode: 'Markdown'
-    })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: TG_CHAT_ID, text: message, parse_mode: 'Markdown' })
   })
-  .then(response => response.json())
+  .then(r => r.json())
   .then(data => {
     if (data.ok) {
-      alert(currentLang === 'uz' ? 'Stol muvaffaqiyatli band qilindi! Tez orada siz bilan bog\'lanamiz.' :
-            currentLang === 'ru' ? 'Стол успешно забронирован! Мы свяжемся с вами в ближайшее время.' :
-            'Table successfully reserved! We will contact you soon.');
-      
-      // Formani tozalash
-      document.getElementById('res-name').value = '';
-      document.getElementById('res-phone').value = '';
-      document.getElementById('res-date').value = '';
-      document.getElementById('res-time').value = '';
-      document.getElementById('res-wish').value = '';
+      document.getElementById('resModalBody').style.display = 'none';
+      const suc = document.getElementById('resSuccess');
+      const st = {
+        uz: { title:"Stol Band Qilindi! ✅", msg:"Tez orada siz bilan bog'lanamiz." },
+        ru: { title:"Стол Забронирован! ✅", msg:"Мы свяжемся с вами в ближайшее время." },
+        en: { title:"Table Reserved! ✅",    msg:"We will contact you shortly." }
+      }[currentLang] || { title:"Stol Band Qilindi! ✅", msg:"Tez orada siz bilan bog'lanamiz." };
+      document.getElementById('resSuccessTitle').textContent = st.title;
+      document.getElementById('resSuccessMsg').textContent   = st.msg;
+      suc.classList.add('show');
+      setTimeout(() => closeResModal(), 3500);
     } else {
-      alert(currentLang === 'uz' ? 'Xatolik yuz berdi. Bot token yoki chat ID ni tekshiring.' : 'Произошла ошибка. Проверьте токен или chat ID.');
+      btn.disabled = false;
+      lbl.textContent = currentLang === 'uz' ? 'Qayta Urinish' : 'Повторить';
+      errEl.textContent = 'Xatolik: ' + (data.description || "noma'lum");
     }
   })
-  .catch(error => {
-    console.error('Error:', error);
-    alert(currentLang === 'uz' ? 'Tarmoq xatosi yuz berdi. Internet aloqangizni tekshiring.' : 'Ошибка сети. Проверьте соединение.');
-  })
-  .finally(() => {
+  .catch(err => {
+    console.error(err);
     btn.disabled = false;
-    btn.innerHTML = originalText;
+    lbl.textContent = currentLang === 'uz' ? 'Qayta Urinish' : 'Повторить';
+    errEl.textContent = currentLang === 'uz' ? 'Tarmoq xatosi. Internet aloqangizni tekshiring.' : 'Ошибка сети.';
   });
-});
+}
 </script>
+
+<!-- RESERVATION MODAL -->
+<div class="res-overlay" id="resOverlay" onclick="closeResOutside(event)">
+  <div class="res-modal">
+    <div class="res-modal-header">
+      <h3 id="resModalTitle">Rezervatsiya</h3>
+      <p id="resModalSub">Ma'lumotlaringizni kiriting</p>
+      <button class="res-modal-close" onclick="closeResModal()">✕</button>
+    </div>
+    <div id="resModalBody" class="res-modal-body">
+
+      <div class="res-modal-row">
+        <div class="res-modal-field">
+          <label id="rLabelName">Ism</label>
+          <input type="text" id="rm-name" placeholder="Ismingiz">
+        </div>
+        <div class="res-modal-field">
+          <label id="rLabelPhone">Telefon</label>
+          <input type="tel" id="rm-phone" placeholder="+998 90 123 45 67">
+        </div>
+      </div>
+
+      <div class="res-modal-row">
+        <div class="res-modal-field">
+          <label id="rLabelDate">Sana</label>
+          <input type="date" id="rm-date">
+        </div>
+        <div class="res-modal-field">
+          <label id="rLabelTime">Vaqt</label>
+          <input type="time" id="rm-time">
+        </div>
+      </div>
+
+      <div class="res-modal-field full">
+        <label id="rLabelGuests">Mehmonlar Soni</label>
+        <select id="rm-guests">
+          <option data-i18n="guests1">1–2 kishi</option>
+          <option data-i18n="guests2">3–4 kishi</option>
+          <option data-i18n="guests3">5–8 kishi</option>
+          <option data-i18n="guests4">9+ kishi (banket)</option>
+        </select>
+      </div>
+
+      <div class="res-modal-field full">
+        <label id="rLabelWish">Maxsus Istak</label>
+        <input type="text" id="rm-wish" placeholder="Tug'ilgan kun, allergiya...">
+      </div>
+
+      <p class="res-error" id="resErrorMsg"></p>
+
+      <button class="res-send-btn" id="resSendBtn" onclick="submitReservation()">
+        <span id="resSendLabel">Stol Band Qilish →</span>
+      </button>
+    </div>
+
+    <div class="res-success" id="resSuccess">
+      <div class="res-success-icon">🎉</div>
+      <h4 id="resSuccessTitle">Stol Band Qilindi!</h4>
+      <p id="resSuccessMsg">Tez orada siz bilan bog'lanamiz.</p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
-
-
